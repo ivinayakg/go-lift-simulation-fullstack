@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    Hello world
+
+    <script>
+      let websocket = new WebSocket("ws://localhost:5454/ws");
+
+      websocket.onopen = () => {
+        console.log("hogaya");
+        websocket.send("Hi bhaiya");
+      };
+
+      websocket.onclose = (event) => {
+        console.log("band ho gaya: ", event);
+      };
+
+      websocket.onerror = (err) => {
+        console.log("Socket error: ", err);
+      };
+
+      websocket.onmessage = (event) => {
+        console.log("Socket Message: ", event.data);
+      };
+    </script>
+  </body>
+</html>
