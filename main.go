@@ -44,7 +44,7 @@ func main() {
 	go services.Pubsubsys.ProcessRequests(func(lr *services.LiftRequestEvent) {
 		pool.Broadcast <- &services.Message{SessionID: lr.Session, Body: bson.M{"event": services.SocketEvents["Lift Moved"], "floor_requested": lr.RequestedFloor, "lift_id": lr.Lift}, CreatedBy: lr.CreatedBy}
 		go func() {
-			time.Sleep(10 * time.Second)
+			time.Sleep(3 * time.Second)
 			requestObject := &models.LiftRequest{ID: lr.ID, RequestedFloor: lr.RequestedFloor, Lift: lr.Lift, Status: lr.Status, Session: lr.Session}
 			models.CompleteLiftRequest(requestObject)
 		}()
