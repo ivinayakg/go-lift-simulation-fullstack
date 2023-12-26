@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/ivinayakg/go-lift-simulation/models"
 	"github.com/ivinayakg/go-lift-simulation/services"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ErrorResponse struct {
@@ -20,7 +21,8 @@ type SessionCreateRequestBody struct {
 }
 
 type LiftRequestCreateRequestBody struct {
-	Floor int `json:"floor"`
+	Floor    int                `json:"floor"`
+	ClientId primitive.ObjectID `json:"clientId"`
 }
 
 var methodChoices = map[string]string{
@@ -48,30 +50,6 @@ func setHeaders(type_ string, w http.ResponseWriter) {
 		w.Header().Set("Access-Control-Allow-Methods", method)
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	}
-}
-
-func CreateLift(w http.ResponseWriter, r *http.Request) {
-	setHeaders("POST", w)
-	var lift models.Lift
-	json.NewDecoder(r.Body).Decode(&lift)
-	if lift.Status == "" {
-		lift.Status = "idle"
-	}
-
-	resultLift, err := models.CreateLift(lift)
-
-	if err != nil {
-		sendJSONError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	json.NewEncoder(w).Encode(resultLift)
-}
-
-func GetLifts(w http.ResponseWriter, r *http.Request) {
-	setHeaders("get", w)
-	payload := models.GetLifts()
-	json.NewEncoder(w).Encode(payload)
 }
 
 func CreateSession(w http.ResponseWriter, r *http.Request) {
@@ -109,7 +87,8 @@ func GetLiftRequests(w http.ResponseWriter, r *http.Request) {
 	setHeaders("get", w)
 	vars := mux.Vars(r)
 	sessionID := vars["id"]
-	payload, err := models.GetLiftRequests(sessionID, "")
+	statusValue := r.URL.Query().Get("status")
+	payload, err := models.GetLiftRequests(sessionID, statusValue)
 	if err != nil {
 		sendJSONError(w, http.StatusBadRequest, err.Error())
 		return
@@ -128,12 +107,17 @@ func CreateLiftRequest(w http.ResponseWriter, r *http.Request) {
 	sessionID := vars["id"]
 
 	floorNumber := body.Floor
+	clientID := body.ClientId
 
-	liftRequest, err := models.CreateLiftRequest(floorNumber, sessionID)
+	if services.Pubsubsys.QueCapacity == services.Pubsubsys.QueLength-2 {
+		http.Error(w, "System is busy try again later", http.StatusBadRequest)
+	}
+
+	liftRequest, liftRequestResponse, err := models.CreateLiftRequest(floorNumber, sessionID)
 	if err != nil {
 		sendJSONError(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	services.Pubsubsys.AddToQue(liftRequest)
-	json.NewEncoder(w).Encode(liftRequest)
+	services.Pubsubsys.AddToQue(&services.LiftRequestEvent{ID: liftRequest.ID, RequestedFloor: liftRequest.RequestedFloor, Lift: liftRequest.Lift, Status: liftRequest.Status, Session: liftRequest.Session, CreatedBy: clientID})
+	json.NewEncoder(w).Encode(liftRequestResponse)
 }
