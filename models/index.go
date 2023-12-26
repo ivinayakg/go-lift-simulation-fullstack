@@ -93,9 +93,9 @@ func init() {
 }
 
 func loadTheEnv() {
-	err := godotenv.Load(".env")
+	err := godotenv.Load("ENV")
 	if err != nil {
-		log.Fatal("Error loading the .env file")
+		log.Fatal("Error loading the ENV file")
 	}
 }
 
@@ -105,21 +105,21 @@ func createDBInstance() {
 	liftCollName := os.Getenv("DB_LIFT_COLLECTION_NAME")
 	liftRequestCollName := os.Getenv("DB_LIFT_REQUEST_COLLECTION_NAME")
 	sessionCollName := os.Getenv("DB_SESSION_COLLECTION_NAME")
-
 	clientOptions := options.Client().ApplyURI(connectionString)
 
 	client, err := mongo.Connect(context.TODO(), clientOptions)
-
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error connecting to MongoDB: %v", err)
+		return
 	}
 
 	err = client.Ping(context.TODO(), nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error pinging MongoDB: %v", err)
+		return
 	}
 
-	fmt.Println("Connected to mongodb")
+	fmt.Println("Connected to MongoDB")
 
 	liftCollection = client.Database(dbName).Collection(liftCollName)
 	liftRequestCollection = client.Database(dbName).Collection(liftRequestCollName)
