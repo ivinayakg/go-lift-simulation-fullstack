@@ -93,7 +93,7 @@ func init() {
 }
 
 func loadTheEnv() {
-	err := godotenv.Load("ENV")
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error loading the ENV file")
 	}
