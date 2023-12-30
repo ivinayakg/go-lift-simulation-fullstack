@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -77,7 +76,7 @@ func GetSession(w http.ResponseWriter, r *http.Request) {
 	sessionID := vars["id"]
 	payload, err := models.GetSession(sessionID)
 	if err != nil {
-		log.Fatal(err)
+		sendJSONError(w, http.StatusBadRequest, err.Error())
 	}
 
 	json.NewEncoder(w).Encode(payload)

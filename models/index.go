@@ -135,7 +135,7 @@ func CreateSession(floors int, lifts int) (*Session, error) {
 
 	liftResults, err := liftCollection.InsertMany(context.Background(), interfacesObjs)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		return nil, err
 	}
 
@@ -155,7 +155,7 @@ func CreateSession(floors int, lifts int) (*Session, error) {
 	result, err := sessionCollection.InsertOne(context.Background(), sessionDoc)
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
 		return nil, err
 	}
 
@@ -166,7 +166,8 @@ func CreateSession(floors int, lifts int) (*Session, error) {
 func GetSession(sessionID string) (*Session, error) {
 	sessionObjectID, err := primitive.ObjectIDFromHex(sessionID)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return nil, err
 	}
 
 	sessionFilter := bson.M{"_id": sessionObjectID}
@@ -177,8 +178,9 @@ func GetSession(sessionID string) (*Session, error) {
 		if err == mongo.ErrNoDocuments {
 			fmt.Println("Session Document not found")
 		} else {
-			log.Fatal(err)
+			fmt.Println(err)
 		}
+		return nil, err
 	} else {
 		fmt.Printf("Found document: %+v\n", sessionDoc.ID)
 	}
@@ -191,7 +193,8 @@ func GetSession(sessionID string) (*Session, error) {
 
 	liftCursor, err := liftCollection.Find(context.TODO(), liftFilter)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return nil, err
 	}
 	defer liftCursor.Close(context.TODO())
 
@@ -199,7 +202,8 @@ func GetSession(sessionID string) (*Session, error) {
 		var doc Lift
 		err := liftCursor.Decode(&doc)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			return nil, err
 		}
 		lifts = append(lifts, doc)
 	}
@@ -212,7 +216,8 @@ func GetSession(sessionID string) (*Session, error) {
 func CreateLiftRequest(floor int, sessionID string) (*LiftRequest, *LiftRequestResponse, error) {
 	sessionObjectID, err := primitive.ObjectIDFromHex(sessionID)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err)
+		return nil, nil, err
 	}
 
 	sessionFilter := bson.M{"_id": sessionObjectID}
@@ -223,8 +228,9 @@ func CreateLiftRequest(floor int, sessionID string) (*LiftRequest, *LiftRequestR
 		if err == mongo.ErrNoDocuments {
 			fmt.Println("Session Document not found")
 		} else {
-			log.Fatal(err)
+			fmt.Println(err)
 		}
+		return nil, nil, err
 	} else {
 		fmt.Printf("Found document Session: %+v\n", sessionDoc.ID)
 	}
@@ -236,8 +242,9 @@ func CreateLiftRequest(floor int, sessionID string) (*LiftRequest, *LiftRequestR
 		if err == mongo.ErrNoDocuments {
 			fmt.Println("Lift Request Document not found")
 		} else {
-			log.Fatal(err)
+			fmt.Println(err)
 		}
+		return nil, nil, err
 	} else {
 		fmt.Printf("Found document Lift Request: %+v\n", liftRequestPresent.ID)
 	}
@@ -272,8 +279,9 @@ func CreateLiftRequest(floor int, sessionID string) (*LiftRequest, *LiftRequestR
 		if err == mongo.ErrNoDocuments {
 			fmt.Println("Lift Document not found")
 		} else {
-			log.Fatal(err)
+			fmt.Println(err)
 		}
+		return nil, nil, err
 	} else {
 		fmt.Printf("Update document successfully: %+v\n", lift.ID.Hex())
 	}
@@ -296,13 +304,14 @@ func GetLiftRequests(sessionID string, requestStatus string) ([]*LiftRequest, er
 		var sessionDoc SessionDocument
 		sessionObjectID, err := primitive.ObjectIDFromHex(sessionID)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
+			return nil, err
 		}
 
 		sessionFilters := bson.M{"_id": sessionObjectID}
 		err = sessionCollection.FindOne(context.TODO(), sessionFilters).Decode(&sessionDoc)
 		if err != nil {
-			fmt.Print(err, sessionID)
+			fmt.Println(err, sessionID)
 			return nil, &utils.CustomError{Message: "Session Not Found"}
 		}
 
@@ -320,7 +329,7 @@ func GetLiftRequests(sessionID string, requestStatus string) ([]*LiftRequest, er
 		var result LiftRequest
 		e := curr.Decode(&result)
 		if e != nil {
-			log.Fatal(e)
+			fmt.Println(err)
 		}
 		results = append(results, &result)
 	}
@@ -343,8 +352,9 @@ func CompleteLiftRequest(liftRequest *LiftRequest) error {
 		if err == mongo.ErrNoDocuments {
 			fmt.Println("Lift Request Document not found")
 		} else {
-			log.Fatal(err)
+			fmt.Println(err)
 		}
+		return err
 	} else {
 		fmt.Printf("Update document successfully LiftRequest: %+v\n", liftRequest.ID.Hex())
 	}
@@ -356,8 +366,9 @@ func CompleteLiftRequest(liftRequest *LiftRequest) error {
 		if err == mongo.ErrNoDocuments {
 			fmt.Println("Lift Document not found")
 		} else {
-			log.Fatal(err)
+			fmt.Println(err)
 		}
+		return err
 	} else {
 		fmt.Printf("Update document successfully Lift: %+v\n", liftRequest.Lift.Hex())
 	}
