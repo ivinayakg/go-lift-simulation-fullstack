@@ -12,11 +12,25 @@ import (
 	"github.com/ivinayakg/go-lift-simulation/controllers"
 	"github.com/ivinayakg/go-lift-simulation/models"
 	"github.com/ivinayakg/go-lift-simulation/services"
+	"github.com/joho/godotenv"
 	"github.com/rs/cors"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 func main() {
+	ENV := os.Getenv("ENV")
+
+	if ENV != "production" || ENV == "" {
+		envFileName := ".env"
+		if ENV != "development" {
+			envFileName = ".env.local"
+		}
+		err := godotenv.Load(envFileName)
+		if err != nil {
+			log.Fatal("Error loading the .env file")
+		}
+	}
+
 	router := mux.NewRouter()
 
 	PORT := os.Getenv("PORT")
@@ -27,6 +41,9 @@ func main() {
 		AllowedHeaders: []string{"Content-Type", "Authorization"},
 	})
 	fmt.Println(allowed_origins)
+
+	models.CreateDBInstance()
+	services.SetupPubSub()
 
 	router.HandleFunc("/session", controllers.CreateSession).Methods("POST", "OPTIONS")
 	router.HandleFunc("/session/{id}", controllers.GetSession).Methods("GET", "OPTIONS")

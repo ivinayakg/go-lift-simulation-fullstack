@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/ivinayakg/go-lift-simulation/utils"
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -87,19 +86,7 @@ var liftCollection *mongo.Collection
 var liftRequestCollection *mongo.Collection
 var sessionCollection *mongo.Collection
 
-func init() {
-	loadTheEnv()
-	createDBInstance()
-}
-
-func loadTheEnv() {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatal("Error loading the .env file")
-	}
-}
-
-func createDBInstance() {
+func CreateDBInstance() {
 	connectionString := os.Getenv("DB_URI")
 	dbName := os.Getenv("DB_NAME")
 	liftCollName := os.Getenv("DB_LIFT_COLLECTION_NAME")

@@ -87,4 +87,8 @@ func (pubsub *PubSub) ProcessRequests(cb func(*LiftRequestEvent)) {
 	}
 }
 
-var Pubsubsys = NewPubSub()
+var Pubsubsys *PubSub
+
+func SetupPubSub() {
+	Pubsubsys = NewPubSub()
+}
