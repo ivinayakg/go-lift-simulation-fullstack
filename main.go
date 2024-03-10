@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -14,15 +16,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-const PORT = "5454"
-
 func main() {
 	router := mux.NewRouter()
 
+	PORT := os.Getenv("PORT")
+	allowed_origins := strings.Split(os.Getenv("ALLOWED_ORIGINS"), " ")
 	corsHandler := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:19006"},
+		AllowedOrigins: allowed_origins,
 		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders: []string{"Content-Type", "Authorization"},
 	})
+	fmt.Println(allowed_origins)
 
 	router.HandleFunc("/session", controllers.CreateSession).Methods("POST", "OPTIONS")
 	router.HandleFunc("/session/{id}", controllers.GetSession).Methods("GET", "OPTIONS")
