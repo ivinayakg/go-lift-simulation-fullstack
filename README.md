@@ -10,7 +10,7 @@
 
 1. Clone the project locally with
    ```
-   git clone https://github.com/ivinayakg/shorte.live.git
+   git clone https://github.com/ivinayakg/go-lift-simulation-fullstack.git
    ```
    
 2. Setup Local DB
