@@ -30,6 +30,7 @@ func main() {
 		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
 		AllowedHeaders: []string{"Content-Type", "Authorization"},
 	})
+	fmt.Println(allowed_origins)
 
 	router := mux.NewRouter()
 
