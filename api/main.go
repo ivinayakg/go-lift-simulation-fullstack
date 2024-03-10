@@ -21,9 +21,9 @@ func main() {
 	ENV := os.Getenv("ENV")
 
 	if ENV != "production" || ENV == "" {
-		envFileName := ".env"
-		if ENV != "development" {
-			envFileName = ".env.local"
+		envFileName := ".env.local"
+		if ENV != "" && ENV != "development" {
+			envFileName = ".env"
 		}
 		err := godotenv.Load(envFileName)
 		if err != nil {
