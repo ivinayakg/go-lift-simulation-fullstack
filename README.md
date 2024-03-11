@@ -1,6 +1,9 @@
 # Lift Simulation Full Stack
 - A multiplayer-game, which simulates the working of lifts.
 
+### Demo
+https://github.com/ivinayakg/go-lift-simulation-fullstack/assets/73058928/915bdce1-9bae-42ad-b23f-eb1f1875247b
+
 ## Tech Stack
 - Golang (w/ gorilla Mux)
 - Mongodb
